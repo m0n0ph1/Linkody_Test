@@ -53,21 +53,49 @@ class UrlController extends AbstractController
             if (!$data) {
                 // throw $this->createNotFoundException('Data not found for URL: '.$urlParameter);
             
-                // Create a new entity object
-                $entity = new Url();
+                $cur = $this->normalizeURL(trim(strtolower($row[0])));
+                $data = $this->normalizeURL(trim(strtolower($data)));
 
-                // Assign the CSV data to the entity properties
-                $entity->setUrl($row[0]);
+                if($cur !== $data) {
+                    // Create a new entity object
+                    $entity = new Url();
 
-                $this->entityManager->persist($entity);
-                $this->entityManager->flush();
+                    // Assign the CSV data to the entity properties
+                    $entity->setUrl($row[0]);
 
-                $count++;
+                    $this->entityManager->persist($entity);
+                    $this->entityManager->flush();
+
+                    $count++;
+                }
             }
         }
 
         return $this->render('url/index.html.twig', [
             'recordcount' => $count,
         ]);
+    }
+
+    private function normalizeURL($url)
+    {
+        // Normalize scheme and host
+        $url = preg_replace('/^(https?|ftp):\/\//i', '', $url);
+        $url = preg_replace('/\/$/', '', $url);
+        $url = preg_replace('/:\d+$/', '', $url);
+
+        // Sort query parameters alphabetically
+        $parts = parse_url($url);
+        if (isset($parts['query'])) {
+            parse_str($parts['query'], $params);
+            ksort($params);
+            $parts['query'] = http_build_query($params);
+            $url = '';
+            foreach ($parts as $key => $value) {
+                $url .= "$key=$value&";
+            }
+            $url = rtrim($url, '&');
+        }
+
+        return $url;
     }
 }
