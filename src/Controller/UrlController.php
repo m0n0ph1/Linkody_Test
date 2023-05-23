@@ -31,30 +31,7 @@ class UrlController extends AbstractController
      */
     public function processCsv(Request $request): Response
     {
-        // $csvFile = $request->files->get('csv_file');
-        // if ($csvFile) {
-
-        //     // Process the file
-        //     $fileObject = new File($csvFile->getPathname());
-
-        //     // Get the content of the file
-        //     $content = file_get_contents($fileObject->getPathname());
-        //     $csv = preg_split('/\s+/', $content);
-            
-        // }
-        
-        // // Iterate over the CSV records and save them into the database
-        // foreach ($csv as $record) {
-        //     // Process and save the record into the database using Doctrine
-            
-        //     $url = new Url();
-        //     $url->setUrl($record);
-
-        //     $entityManager = $this->getDoctrine()->getManager();
-            
-        //     $entityManager->persist($url);
-        //     $entityManager->flush();
-        // }
+        $count = 0;
         $file = $request->files->get('csv_file');
 
         // Read the CSV file and store its data in an array
@@ -66,27 +43,31 @@ class UrlController extends AbstractController
             fclose($handle);
         }
 
+        // Delete data that is duplicated
         // Process the CSV data and store in the database
         foreach ($csvData as $row) {
-            // Create a new entity object
-            $entity = new Url();
+            $yourRepository = $this->entityManager->getRepository(Url::class);
+            $data = $yourRepository->findOneBy(['url' => $row]);
+            
+            // Check if the record exists
+            if (!$data) {
+                // throw $this->createNotFoundException('Data not found for URL: '.$urlParameter);
+            
+                // Create a new entity object
+                $entity = new Url();
 
-            // Assign the CSV data to the entity properties
-            $entity->setUrl($row[0]);
-            // ...
+                // Assign the CSV data to the entity properties
+                $entity->setUrl($row[0]);
 
-            // Persist the entity
-            // $entityManager = $this->getDoctrine()->getManager();
-            // $entityManager->persist($entity);
+                $this->entityManager->persist($entity);
+                $this->entityManager->flush();
 
-            $this->entityManager->persist($entity);
-            $this->entityManager->flush();
+                $count++;
+            }
         }
 
-        // Flush the changes to the database
-        // $entityManager->flush();
-
-
-        return $this->render('url/index.html.twig');
+        return $this->render('url/index.html.twig', [
+            'recordcount' => $count,
+        ]);
     }
 }

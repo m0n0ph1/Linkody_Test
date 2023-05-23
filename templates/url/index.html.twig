@@ -12,4 +12,7 @@
         </div>
         <button type="submit">Import</button>
     </form>
+    {% if recordcount is not null %}
+        <h1>{{ recordcount }} was inserted</h1>
+    {% endif %}
 {% endblock %}
