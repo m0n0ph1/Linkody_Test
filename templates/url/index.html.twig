@@ -3,16 +3,53 @@
 {% block title %}Import CSV{% endblock %}
 
 {% block body %}
-    <h1>Import CSV</h1>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        form {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="file"] {
+            border: none;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            align: center;
+        }
+    </style>
+    <body>
+        <h1>Import CSV</h1>
 
-    <form action="{{ path('process_csv') }}" method="POST" enctype="multipart/form-data">
-        <div>
-            <label for="csv_file">CSV File:</label>
-            <input type="file" id="csv_file" name="csv_file" required>
-        </div>
-        <button type="submit">Import</button>
-    </form>
-    {% if recordcount is not null %}
-        <h1>{{ recordcount }} was inserted</h1>
-    {% endif %}
+        <form action="{{ path('process_csv') }}" method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="csv_file">CSV File:</label>
+                <input type="file" id="csv_file" name="csv_file" required>
+            </div>
+            <button type="submit">Import</button>
+        </form>
+        {% if recordcount is defined %}
+            <h2>{{ recordcount }} urls was inserted.</h2>
+        {% endif %}
+    </body>
 {% endblock %}
