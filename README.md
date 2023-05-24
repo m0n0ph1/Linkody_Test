@@ -25,11 +25,11 @@ Implement a mini Symfony application taking into consideration the 3 previous co
 
 <h3>1. The table can grow to millions of URLs. However, we can’t have the user wait more than a couple of seconds for inserting CSV files with tens of thousands of URLs. What are the usual approaches?</h3>
 
-An approach is to process the import in smaller batches, with each batch containing a limited number of URLs. This ensures that the user doesn't have to wait too long for the entire import to complete. The Symfony Console and Process components can be used to implement a batch processing solution.
+Implement asynchronous processing with help of libraries like RabbitMQ, PHP Resque, or Gearman. Allow the users to upload CSV files and let the server process the data in the background, freeing up the user to continue working without waiting for the data processing.
 
 <h3>2. The URLs can be up to 2048 characters. What problem are we facing? How to solve that problem?</h3>
 
-For each line in the file, extract the URL and store it in an array. Once you have a batch of URLs (e.g., 1000 URLs), use Doctrine's EntityManager to persist them to the database. Clear the EntityManager after each batch to free up memory. Repeat steps 3-5 until all URLs have been imported. By implementing this approach in Symfony, we can ensure that large CSV files with long URLs can be imported without running into issues related to maximum input variable size limits.
+We can use TEXT type instead of VARCHAR type in data schema. If modifying the database schema isn't possible, we can consider using external services like Amazon S3, Google Cloud Storage or Azure Blob Storage to store the URLs or their contents instead of directly storing in our database. This approach can also help in handling storage issues due to the large number of requests and reduce the load on the database server.
 
 <h3>3. We want all versions of the same URL to match. For instance, if 2 URLs differ only by the scheme, they are considered the same URL. If one URL has the default port 80 and another has no port, they are considered the same URL. If the URLs have the same query parameters and values but in different orders, they are considered the same URL.</h3>
 
